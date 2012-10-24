@@ -42,16 +42,27 @@ class BasicEntityPersisterGenerator extends Generator
 
     protected function generateConstructor()
     {
-        $method   = new \ReflectionMethod($this->persister, 'getSelectColumnsSQL');
-        $property = new \ReflectionProperty($this->persister, 'rsm');
+        $rsmProperty                = new \ReflectionProperty($this->persister, 'rsm');
+        $method                     = new \ReflectionMethod($this->persister, 'getSelectColumnsSQL');
+        $selectColumnListProperty   = new \ReflectionProperty($this->persister, 'selectColumnListSql');
+        $selectJoinProperty         = new \ReflectionProperty($this->persister, 'selectJoinSql');
 
-        $property->setAccessible(true);
+        $selectColumnListProperty->setAccessible(true);
+        $selectJoinProperty->setAccessible(true);
+        $rsmProperty->setAccessible(true);
         $method->setAccessible(true);
+
         $method->invoke($this->persister);
 
-        $rsm = serialize($property->getValue($this->persister));
+        $rsm              = serialize($rsmProperty->getValue($this->persister));
+        $selectColumnList = $selectColumnListProperty->getValue($this->persister);
+        $selectJoinSql    = $selectJoinProperty->getValue($this->persister);
 
-        return sprintf('$this->rsm  = unserialize(%s);', var_export($rsm, true));
+        $code[] = sprintf('$this->selectColumnListSql = %s;', var_export($selectColumnList, true));
+        $code[] = sprintf('$this->selectJoinSql = %s;', var_export($selectJoinSql, true));
+        $code[] = sprintf('$this->rsm  = unserialize(%s);', var_export($rsm, true));
+
+        return implode(PHP_EOL. '       ', $code);
     }
 
     protected function generateClassName()
@@ -82,7 +93,6 @@ class BasicEntityPersisterGenerator extends Generator
     protected function generateMethods()
     {
         return array(
-            'getSelectColumnsSQL' => $this->generateGetSelectColumnsSQL(),
             'getInsertSQL'        => $this->generateGetInsertSQL(),
         );
     }

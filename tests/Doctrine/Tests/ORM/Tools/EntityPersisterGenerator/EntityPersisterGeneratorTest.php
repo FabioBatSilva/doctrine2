@@ -25,7 +25,7 @@ class EntityPersisterGeneratorTest extends \Doctrine\Tests\OrmFunctionalTestCase
     {
         parent::setUp();
 
-        $this->namespace    = 'Doctrine_CG__Test_Persisters';
+        $this->namespace    = 'Doctrine_CG_Test_Persisters';
         $this->tmpDir       = sys_get_temp_dir() . DIRECTORY_SEPARATOR . uniqid("doctrine_");
         $this->generator    = new EntityPersisterGenerator($this->_em, $this->namespace);
 
@@ -61,8 +61,10 @@ class EntityPersisterGeneratorTest extends \Doctrine\Tests\OrmFunctionalTestCase
 
         $class      = $this->namespace . '\CmsAddressPersister';
         $persister  = new $class($this->_em, $metadata);
+        $reflection = new \ReflectionClass($persister);
 
         $this->assertInstanceOf('\Doctrine\ORM\Persisters\BasicEntityPersister', $persister);
+        $this->assertEquals($reflection->name, $reflection->getMethod('getInsertSQL')->getDeclaringClass()->name);
     }
 
     public function testWriteEntityPersisterClass()
@@ -70,11 +72,13 @@ class EntityPersisterGeneratorTest extends \Doctrine\Tests\OrmFunctionalTestCase
         $metadata   = $this->_em->getClassMetadata('Doctrine\Tests\Models\CMS\CmsUser');
         $filename   = $this->generator->writeEntityPersisterClass($metadata, $this->tmpDir);
 
-        include $filename;
+        $this->assertFileExists($filename);
 
         $class      = $this->namespace . '\CmsAddressPersister';
         $persister  = new $class($this->_em, $metadata);
+        $reflection = new \ReflectionClass($persister);
 
         $this->assertInstanceOf('\Doctrine\ORM\Persisters\BasicEntityPersister', $persister);
+        $this->assertEquals($reflection->name, $reflection->getMethod('getInsertSQL')->getDeclaringClass()->name);
     }
 }
