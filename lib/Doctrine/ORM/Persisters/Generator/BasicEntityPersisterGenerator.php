@@ -21,6 +21,7 @@ namespace Doctrine\ORM\Persisters\Generator;
 
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Mapping\ClassMetadata;
+use Doctrine\ORM\Query\ResultSetMapping;
 use Doctrine\ORM\Persisters\BasicEntityPersister;
 
 /**
@@ -32,52 +33,50 @@ class BasicEntityPersisterGenerator extends PersisterGenerator
 
     private $persister;
 
-    public function __construct(EntityManager $em, ClassMetadata $class, $namespace)
+    public function __construct(EntityManager $em, ClassMetadata $class)
     {
-        parent::__construct($em, $class, $namespace);
+        parent::__construct($em, $class);
 
         $this->persister = new BasicEntityPersister($this->em, $this->class);
+        $initialize      = $this->getAccessibleMethod($this->persister, 'getSelectColumnsSQL');
+
+        $initialize->invoke($this->persister);
     }
 
+    private function generateResultSetMapping(ResultSetMapping $rsm)
+    {
+        $code[] = '$this->rsm = new \Doctrine\ORM\Query\ResultSetMapping();';
+
+        foreach ($rsm as $property => $value) {
+
+            if (is_array($value) && empty($value)) {
+                continue;
+            }
+
+            $string = var_export($value, true);
+            $code[] = sprintf('$this->rsm->%s = %s;', $property, $string);
+        }
+
+        return $code;
+    }
 
     protected function generateConstructor()
     {
-        $rsmProperty                = new \ReflectionProperty($this->persister, 'rsm');
-        $method                     = new \ReflectionMethod($this->persister, 'getSelectColumnsSQL');
-        $selectColumnListProperty   = new \ReflectionProperty($this->persister, 'selectColumnListSql');
-        $selectJoinProperty         = new \ReflectionProperty($this->persister, 'selectJoinSql');
+        $rsm  = $this->getPropertyValue($this->persister, 'rsm');
+        $code = $this->generateResultSetMapping($rsm);
 
-        $selectColumnListProperty->setAccessible(true);
-        $selectJoinProperty->setAccessible(true);
-        $rsmProperty->setAccessible(true);
-        $method->setAccessible(true);
-
-        $method->invoke($this->persister);
-
-        $rsm              = serialize($rsmProperty->getValue($this->persister));
-        $selectColumnList = $selectColumnListProperty->getValue($this->persister);
-        $selectJoinSql    = $selectJoinProperty->getValue($this->persister);
-
-        $code[] = sprintf('$this->selectColumnListSql = %s;', var_export($selectColumnList, true));
-        $code[] = sprintf('$this->selectJoinSql = %s;', var_export($selectJoinSql, true));
-        $code[] = sprintf('$this->rsm  = unserialize(%s);', var_export($rsm, true));
-
-        return implode(PHP_EOL. '       ', $code);
+        return implode(PHP_EOL . str_repeat(' ', 8), $code);
     }
 
-    protected function generateClassName()
+    protected function generateProperties()
     {
-        return sprintf('%sPersister extends \Doctrine\ORM\Persisters\BasicEntityPersister', $this->class->reflClass->getShortName());
-    }
+        $selectJoinSql    = $this->getPropertyValue($this->persister, 'selectJoinSql');
+        $selectColumnList = $this->getPropertyValue($this->persister, 'selectColumnListSql');
 
-    private function generateGetSelectColumnsSQL()
-    {
-        $method = new \ReflectionMethod($this->persister, 'getSelectColumnsSQL');
-        $method->setAccessible(true);
-
-        $sql = $method->invoke($this->persister);
-
-        return sprintf('return %s;', var_export($sql, true));
+        $properties[] = sprintf('protected $selectColumnListSql = %s;', var_export($selectColumnList, true));
+        $properties[] = sprintf('protected $selectJoinSql = %s;', var_export($selectJoinSql, true));
+        
+        return $properties;
     }
 
     private function generateGetInsertSQL()
@@ -93,7 +92,12 @@ class BasicEntityPersisterGenerator extends PersisterGenerator
     protected function generateMethods()
     {
         return array(
-            'getInsertSQL'        => $this->generateGetInsertSQL(),
+            'getInsertSQL' => $this->generateGetInsertSQL(),
         );
+    }
+
+    protected function getParentClass()
+    {
+        return '\Doctrine\ORM\Persisters\BasicEntityPersister';
     }
 }

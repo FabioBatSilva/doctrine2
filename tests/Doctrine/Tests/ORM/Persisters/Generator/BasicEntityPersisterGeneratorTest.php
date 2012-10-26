@@ -23,9 +23,11 @@ class BasicEntityPersisterGeneratorTest extends \Doctrine\Tests\OrmFunctionalTes
 
     public function testGenerate()
     {
+        $shortName  = 'CmsAddressPersister';
+        $fqcn       = $this->namespace . '\\' . $shortName;
         $metadata   = $this->_em->getClassMetadata('Doctrine\Tests\Models\CMS\CmsAddress');
-        $generator  = new BasicEntityPersisterGenerator($this->_em, $metadata, $this->namespace);
-        $code       = $generator->generate();
+        $generator  = new BasicEntityPersisterGenerator($this->_em, $metadata);
+        $code       = $generator->generate($this->namespace, $shortName);
         $filename   = sys_get_temp_dir() . DIRECTORY_SEPARATOR . uniqid() . '.php';
 
         file_put_contents($filename , $code);
@@ -34,8 +36,7 @@ class BasicEntityPersisterGeneratorTest extends \Doctrine\Tests\OrmFunctionalTes
 
         unlink($filename);
 
-        $class      = $this->namespace . '\CmsAddressPersister';
-        $persister  = new $class($this->_em, $metadata);
+        $persister  = new $fqcn($this->_em, $metadata);
 
         $this->assertInstanceOf('\Doctrine\ORM\Persisters\BasicEntityPersister', $persister);
     }
