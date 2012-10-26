@@ -17,7 +17,7 @@
  * <http://www.doctrine-project.org>.
  */
 
-namespace Doctrine\ORM\Tools\EntityPersisterGenerator;
+namespace Doctrine\ORM\Persisters\Generator;
 
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Mapping\ClassMetadata;
@@ -27,7 +27,7 @@ use Doctrine\ORM\Persisters\BasicEntityPersister;
  * @author  Fabio B. Silva <fabio.bat.silva@gmail.com>
  * @since   2.4
  */
-class BasicEntityPersisterGenerator extends Generator
+class BasicEntityPersisterGenerator extends PersisterGenerator
 {
 
     private $persister;

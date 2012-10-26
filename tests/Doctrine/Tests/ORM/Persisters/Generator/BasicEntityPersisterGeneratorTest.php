@@ -1,8 +1,8 @@
 <?php
 
-namespace Doctrine\Tests\ORM\Tools;
+namespace Doctrine\Tests\ORM\Persisters\Generator;
 
-use Doctrine\ORM\Tools\EntityPersisterGenerator\BasicEntityPersisterGenerator;
+use Doctrine\ORM\Persisters\Generator\BasicEntityPersisterGenerator;
 
 require_once __DIR__ . '/../../../TestInit.php';
 

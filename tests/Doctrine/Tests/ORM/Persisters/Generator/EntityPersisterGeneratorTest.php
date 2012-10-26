@@ -2,7 +2,7 @@
 
 namespace Doctrine\Tests\ORM\Tools;
 
-use Doctrine\ORM\Tools\EntityPersisterGenerator;
+use Doctrine\ORM\Persisters\EntityPersisterGenerator;
 
 require_once __DIR__ . '/../../../TestInit.php';
 

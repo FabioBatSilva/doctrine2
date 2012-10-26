@@ -17,11 +17,11 @@
  * <http://www.doctrine-project.org>.
  */
 
-namespace Doctrine\ORM\Tools;
+namespace Doctrine\ORM\Persisters;
 
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Mapping\ClassMetadata;
-use Doctrine\ORM\Tools\EntityPersisterGenerator\BasicEntityPersisterGenerator;
+use Doctrine\ORM\Persisters\Generator\BasicEntityPersisterGenerator;
 
 /**
  * @author  Fabio B. Silva <fabio.bat.silva@gmail.com>
