@@ -4,14 +4,22 @@ namespace Doctrine\Tests\ORM\Tools;
 
 use Doctrine\ORM\Persisters\PersisterFactory;
 
-require_once __DIR__ . '/../../../TestInit.php';
-
 /**
  * @group DDC-1889
  */
-class EntityPersisterGeneratorTest extends \Doctrine\Tests\OrmFunctionalTestCase
+class PersisterFactoryTest extends \Doctrine\Tests\OrmFunctionalTestCase
 {
 
+    public static function getGenerateProvider()
+    {
+        return array(
+            array('Doctrine\Tests\Models\CMS\CmsAddress', 'Doctrine\ORM\Persisters\BasicEntityPersister'),
+            array('Doctrine\Tests\Models\CMS\CmsUser', 'Doctrine\ORM\Persisters\BasicEntityPersister'),
+            array('Doctrine\Tests\Models\CMS\CmsArticle', 'Doctrine\ORM\Persisters\BasicEntityPersister'),
+            array('Doctrine\Tests\Models\Quote\User', 'Doctrine\ORM\Persisters\BasicEntityPersister'),
+        );
+    }
+    
     private $directory;
     
     private $namespace;
@@ -25,7 +33,7 @@ class EntityPersisterGeneratorTest extends \Doctrine\Tests\OrmFunctionalTestCase
     {
         parent::setUp();
 
-        $this->namespace  = '';
+        $this->namespace  = 'PersisterFactoryTest'.uniqid();
         $this->directory  = sys_get_temp_dir() . DIRECTORY_SEPARATOR . uniqid("doctrine_");
         $this->factory    = new PersisterFactory($this->_em, $this->directory, $this->namespace, true);
 
@@ -51,15 +59,17 @@ class EntityPersisterGeneratorTest extends \Doctrine\Tests\OrmFunctionalTestCase
         @rmdir($this->directory);
     }
 
-    public function testGetEntityPersister()
+    /**
+     * @dataProvider getGenerateProvider
+     */
+    public function testGetEntityPersister($entityClass, $parentPersisterClass)
     {
-        $metadata   = $this->_em->getClassMetadata('Doctrine\Tests\Models\CMS\CmsUser');
+        $metadata   = $this->_em->getClassMetadata($entityClass);
         $class      = $this->factory->getEntityPersisterClassName($metadata);
         $persister  = $this->factory->getEntityPersister($metadata);
-        $reflection = new \ReflectionClass($persister);
 
-        $this->assertInstanceOf('\Doctrine\ORM\Persisters\BasicEntityPersister', $persister);
+        $this->assertInstanceOf($parentPersisterClass, $persister);
         $this->assertInstanceOf($class, $persister);
-        $this->assertEquals($reflection->name, $reflection->getMethod('getInsertSQL')->getDeclaringClass()->name);
+        $this->assertNotEquals($class, $parentPersisterClass);
     }
 }
