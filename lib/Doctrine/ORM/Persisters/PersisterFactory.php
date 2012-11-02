@@ -136,9 +136,9 @@ class PersisterFactory
     private function getEntityPersisterFileName($className, $directory = null)
     {
         $directory = $directory ?: $this->directory;
-        $path      = str_replace('\\', '', $className) . $this->classSuffix;
+        $path      = str_replace('\\', DIRECTORY_SEPARATOR, $className) . $this->classSuffix;
 
-        return $directory . DIRECTORY_SEPARATOR . Proxy::MARKER . $path . '.php';
+        return $directory . DIRECTORY_SEPARATOR . Proxy::MARKER . DIRECTORY_SEPARATOR . $path . '.php';
     }
 
     /**
@@ -173,6 +173,31 @@ class PersisterFactory
 
         file_put_contents($filename, $code);
     }
+
+    /**
+     * Generates proxy classes for all given classes.
+     *
+     * @param array $classes The classes (ClassMetadata instances) for which to generate persisters.
+     * @param string $directory The target directory of the persister classes.
+     * 
+     * @return array of generated persister classes.
+     */
+    public function generatePersisterClasses(array $classes, $directory = null)
+    {
+        $list = array();
+
+        foreach ($classes as $class) {
+            $persisterClass = $this->getEntityPersisterClassName($class);
+            $filename       = $this->getEntityPersisterFileName($class->name, $directory);
+
+            $this->generateEntityPersisterClass($class, $persisterClass, $filename);
+
+            $list[$filename] = $persisterClass;
+        }
+
+        return $list;
+    }
+
 
     /**
      * Gets the EntityPersister for an Entity.

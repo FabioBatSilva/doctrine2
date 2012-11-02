@@ -75,4 +75,28 @@ class PersisterFactoryTest extends \Doctrine\Tests\OrmFunctionalTestCase
         
         $this->assertNotEquals($class, $parentPersisterClass);
     }
+
+    public function testGeneratePersisterClasses()
+    {
+        $classes    = array();
+        $provider   = self::getGenerateProvider();
+
+        foreach ($provider as $item) {
+            $classes[] = $this->_em->getClassMetadata($item[0]);
+        }
+
+        $result = $this->factory->generatePersisterClasses($classes, $this->directory);
+
+        $this->assertCount(count($classes), $result);
+
+        foreach ($result as $filename => $persisterClass) {
+            $this->assertFileExists($filename);
+
+            include $filename;
+
+            $reflectionClass = new \ReflectionClass($persisterClass);
+
+            $this->assertTrue($reflectionClass->isSubclassOf('Doctrine\ORM\Persisters\Generator\GeneratedPersister'));
+        }
+    }
 }
