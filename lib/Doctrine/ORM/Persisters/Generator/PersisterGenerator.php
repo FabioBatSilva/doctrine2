@@ -203,6 +203,7 @@ class <className> extends <parentClass>
 
         return $method;
     }
+
     /**
      * @param \Doctrine\ORM\Persisters\BasicEntityPersister $persister
      * @param string $name
