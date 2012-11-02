@@ -58,8 +58,6 @@ class BasicEntityPersisterGeneratorTest extends PersisterGeneratorTest
         $generated  = $this->getEntityPersister($metadata);
         $parent     = new BasicEntityPersister($this->_em, $metadata);
         
-        $this->assertInstanceOf('\Doctrine\ORM\Persisters\BasicEntityPersister', $generated);
-
         $this->assertEquals(
             $this->invokePersisterMethod($parent, 'getSelectColumnsSQL'),
             $this->invokePersisterMethod($generated, 'getSelectColumnsSQL')
@@ -89,8 +87,6 @@ class BasicEntityPersisterGeneratorTest extends PersisterGeneratorTest
         $metadata   = $this->_em->getClassMetadata($class);
         $generated  = $this->getEntityPersister($metadata);
         $parent     = new BasicEntityPersister($this->_em, $metadata);
-
-        $this->assertInstanceOf('\Doctrine\ORM\Persisters\BasicEntityPersister', $generated);
 
         $this->assertEquals(
             $this->invokePersisterMethod($parent, 'getInsertSQL'),

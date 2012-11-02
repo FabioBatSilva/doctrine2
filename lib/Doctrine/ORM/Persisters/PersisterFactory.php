@@ -60,6 +60,11 @@ class PersisterFactory
     private $persisters = array();
 
     /**
+     * @var string The generated class name suffix.
+     */
+    private $classSuffix = 'Persister';
+
+    /**
      * Initializes a new EntityPersisterGenerator.
      *
      * @param \Doctrine\ORM\EntityManager $em
@@ -71,7 +76,39 @@ class PersisterFactory
         $this->directory = $directory;
         $this->namespace = rtrim($namespace, '\\');
     }
- 
+
+    /**
+     * @return string
+     */
+    public function getClassSuffix()
+    {
+        return $this->classSuffix;
+    }
+
+    /**
+     * @param string $classSuffix
+     */
+    public function setClassSuffix($classSuffix)
+    {
+        $this->classSuffix = $classSuffix;
+    }
+
+    /**
+     * @return string
+     */
+    public function getDirectory()
+    {
+        return $this->directory;
+    }
+
+    /**
+     * @return string
+     */
+    public function getNamespace()
+    {
+        return $this->namespace;
+    }
+
     /**
      * Gets the Generator for an entity.
      *
@@ -99,7 +136,7 @@ class PersisterFactory
     private function getEntityPersisterFileName($className, $directory = null)
     {
         $directory = $directory ?: $this->directory;
-        $path      = str_replace('\\', '', $className) . 'Persister';
+        $path      = str_replace('\\', '', $className) . $this->classSuffix;
 
         return $directory . DIRECTORY_SEPARATOR . Proxy::MARKER . $path . '.php';
     }
@@ -111,7 +148,7 @@ class PersisterFactory
      */
     public function getEntityPersisterClassName(ClassMetadata $class)
     {
-        return ClassUtils::generateProxyClassName($class->name, $this->namespace) . 'Persister';
+        return ClassUtils::generateProxyClassName($class->name, $this->namespace) . $this->classSuffix;
     }
 
     /**

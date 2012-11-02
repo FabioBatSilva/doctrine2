@@ -66,10 +66,13 @@ class PersisterFactoryTest extends \Doctrine\Tests\OrmFunctionalTestCase
     {
         $metadata   = $this->_em->getClassMetadata($entityClass);
         $class      = $this->factory->getEntityPersisterClassName($metadata);
-        $persister  = $this->factory->getEntityPersister($metadata);
+        $generated  = $this->factory->getEntityPersister($metadata);
 
-        $this->assertInstanceOf($parentPersisterClass, $persister);
-        $this->assertInstanceOf($class, $persister);
+        $this->assertInstanceOf('Doctrine\ORM\Persisters\Generator\GeneratedPersister', $generated);
+
+        $this->assertInstanceOf($parentPersisterClass, $generated);
+        $this->assertInstanceOf($class, $generated);
+        
         $this->assertNotEquals($class, $parentPersisterClass);
     }
 }
