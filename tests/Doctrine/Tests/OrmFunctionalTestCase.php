@@ -386,6 +386,11 @@ abstract class OrmFunctionalTestCase extends OrmTestCase
         $config->setProxyDir(__DIR__ . '/Proxies');
         $config->setProxyNamespace('Doctrine\Tests\Proxies');
 
+        $config->setUseGeneratedPersisters(true);
+        $config->setPersistersDir(__DIR__."/Proxies/Persisters");
+        $config->setPersistersNamespace("Doctrine\Tests\Proxies\Persisters");
+
+
         $config->setMetadataDriverImpl($config->newDefaultAnnotationDriver(array(), true));
 
         $conn = static::$_sharedConn;

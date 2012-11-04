@@ -19,16 +19,14 @@
 
 namespace Doctrine\ORM\Persisters\Generator;
 
-use Doctrine\ORM\Persisters\BasicEntityPersister;
-
 /**
  * @author  Fabio B. Silva <fabio.bat.silva@gmail.com>
  * @since   2.4
  */
-class BasicEntityPersisterGenerator extends PersisterGenerator
+class JoinedSubclassPersisterGenerator extends PersisterGenerator
 {
     /**
-     * @var \Doctrine\ORM\Persisters\BasicEntityPersister
+     * @var \Doctrine\ORM\Persisters\JoinedSubclassPersister
      */
     private $persister;
 
@@ -37,10 +35,7 @@ class BasicEntityPersisterGenerator extends PersisterGenerator
     */
     public function initialize()
     {
-        $this->persister = new BasicEntityPersister($this->em, $this->class);
 
-        // initialize rsm, selectJoinSql, and selectColumnListSql
-        $this->getInvokeMethod($this->persister, 'getSelectColumnsSQL');
     }
 
     /**
@@ -48,21 +43,7 @@ class BasicEntityPersisterGenerator extends PersisterGenerator
     */
     protected function generateConstructor()
     {
-        $rsm    = $this->getPropertyValue($this->persister, 'rsm');
-        $code[] = '$this->rsm = new \Doctrine\ORM\Query\ResultSetMapping();';
-
-        foreach ($rsm as $property => $value) {
-
-            if (is_array($value) && empty($value)) {
-                continue;
-            }
-
-            $string = var_export($value, true);
-            $inline = str_replace(PHP_EOL, '', $string);
-            $code[] = sprintf('$this->rsm->%s = %s;', $property, $inline);
-        }
-
-        return implode(PHP_EOL . str_repeat(' ', 8), $code);
+        return null;
     }
 
     /**
@@ -70,13 +51,7 @@ class BasicEntityPersisterGenerator extends PersisterGenerator
     */
     protected function generateProperties()
     {
-        $selectJoinSql    = $this->getPropertyValue($this->persister, 'selectJoinSql');
-        $selectColumnList = $this->getPropertyValue($this->persister, 'selectColumnListSql');
-
-        return array(
-            'selectJoinSql'         => $selectJoinSql,
-            'selectColumnListSql'   => $selectColumnList
-        );
+        return array();
     }
 
     /**
@@ -84,12 +59,7 @@ class BasicEntityPersisterGenerator extends PersisterGenerator
     */
     protected function generateMethods()
     {
-        $getInsertSQL = $this->getInvokeMethod($this->persister, 'getInsertSQL');
-        $getInsertSQL = sprintf('return %s;', var_export($getInsertSQL, true));
-
-        return array(
-            'getInsertSQL' => $getInsertSQL,
-        );
+        return array();
     }
 
     /**
@@ -97,6 +67,6 @@ class BasicEntityPersisterGenerator extends PersisterGenerator
     */
     protected function getParentClass()
     {
-        return '\Doctrine\ORM\Persisters\BasicEntityPersister';
+        return '\Doctrine\ORM\Persisters\JoinedSubclassPersister';
     }
 }

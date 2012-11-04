@@ -97,52 +97,64 @@ class <className> extends <parentClass> implements \Doctrine\ORM\Persisters\Gene
      */
     protected static $propertyTemplate = '
     /**
-    * @var mixed
+    * {@inheritdoc}
     */
-    <body>
-    ';
+    protected $<propertyName> = <value>;';
 
+    /**
+     * Generate the entity class body
+     *
+     * @return string
+     */
     private function generateClassBody()
     {
         $constructor    = $this->generateConstructor();
         $properties     = $this->generateProperties();
         $methods        = $this->generateMethods();
+        $code           = array();
 
-
-        foreach ($properties as $body) {
-            $code[] = str_replace('<body>', $body, self::$propertyTemplate);
+        foreach ($properties as $propertyName => $value) {
+            $code[] = str_replace(
+                array('<propertyName>', '<value>'),
+                array($propertyName, var_export($value, true)),
+                self::$propertyTemplate
+            );
         }
 
         if ($constructor !== null) {
-            $code[] = str_replace(
-                '<body>',
-                $constructor,
-                self::$constructorTemplate
-            );
+            $code[] = str_replace('<body>', $constructor, self::$constructorTemplate);
         }
 
-        foreach ($methods as $name => $method) {
+        foreach ($methods as $methodName => $body) {
              $code[] = str_replace(
                 array('<body>', '<methodName>'),
-                array($method, $name),
+                array($body, $methodName),
                 self::$methodTemplate
             );
         }
+
+        array_map('trim', $code);
 
         return implode(PHP_EOL, $code);
     }
 
     /**
-     * @return array
+     * Generate the constructor method
+     * 
+     * @return string
      */
     abstract protected function generateConstructor();
 
     /**
+     * Generate properties to override
      *
+     * @return array
      */
     abstract protected function generateProperties();
 
     /**
+     * Generate methods to override
+     * 
      * @return array
      */
     abstract protected function generateMethods();
@@ -153,10 +165,22 @@ class <className> extends <parentClass> implements \Doctrine\ORM\Persisters\Gene
     abstract protected function getParentClass();
 
     /**
+     * Initialize the persister
+     */
+    abstract protected function initialize();
+
+    /**
+     * Generate the entity class calling the template methods
+     *
+     * @param string $namespace
+     * @param string $shortName
+     * 
      * @return string
      */
     public function generate($namespace, $shortName)
     {
+        $this->initialize();
+
         $placeHolders = array(
             '<namespace>',
             '<className>',
@@ -213,5 +237,17 @@ class <className> extends <parentClass> implements \Doctrine\ORM\Persisters\Gene
     protected function getPropertyValue(BasicEntityPersister $persister, $name)
     {
         return $this->getAccessibleProperty($persister, $name)->getValue($persister);
+    }
+
+    /**
+     * @param \Doctrine\ORM\Persisters\BasicEntityPersister $persister
+     * @param string $name
+     * @param array $args
+     *
+     * @return mixed
+     */
+    protected function getInvokeMethod(BasicEntityPersister $persister, $name, array $args = array())
+    {
+        return $this->getAccessibleMethod($persister, $name)->invokeArgs($persister, $args);
     }
 }

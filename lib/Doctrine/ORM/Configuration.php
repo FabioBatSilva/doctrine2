@@ -122,6 +122,96 @@ class Configuration extends \Doctrine\DBAL\Configuration
     }
 
     /**
+     * Sets the directory where Doctrine generates any necessary persister class files.
+     *
+     * @param string $directory
+     */
+    public function setPersistersDir($directory)
+    {
+        $this->_attributes['persistersDir'] = $directory;
+    }
+
+    /**
+     * Gets the directory where Doctrine generates any necessary persister class files.
+     *
+     * @return string
+     */
+    public function getPersistersDir()
+    {
+        return isset($this->_attributes['persistersDir'])
+            ? $this->_attributes['persistersDir']
+            : null;
+    }
+
+    /**
+     * Gets a boolean flag that indicates whether persister classes should always be regenerated
+     * during each script execution.
+     *
+     * @return boolean
+     */
+    public function getAutoGeneratePersisterClasses()
+    {
+        return isset($this->_attributes['autoGeneratePersisterClasses'])
+            ? $this->_attributes['autoGeneratePersisterClasses']
+            : true;
+    }
+
+    /**
+     * Sets a boolean flag that indicates whether persister classes should be regenerated
+     * during each script execution.
+     *
+     * @param boolean $bool
+     */
+    public function setAutoGeneratePersisterClasses($bool)
+    {
+        $this->_attributes['autoGeneratePersisterClasses'] = $bool;
+    }
+
+    /**
+     * Gets the namespace where persister classes reside.
+     *
+     * @return string
+     */
+    public function getPersistersNamespace()
+    {
+        return isset($this->_attributes['persisterNamespaces'])
+            ? $this->_attributes['persisterNamespaces']
+            : null;
+    }
+
+    /**
+     * Sets the namespace where persister classes reside.
+     *
+     * @param string $namespace
+     */
+    public function setPersistersNamespace($namespace)
+    {
+        $this->_attributes['persisterNamespaces'] = $namespace;
+    }
+
+    /**
+     * Sets a boolean flag that indicates to use generated persisters.
+     *
+     * @return string
+     */
+    public function getUseGeneratedPersisters()
+    {
+        return isset($this->_attributes['useGeneratedPersisters'])
+            ? $this->_attributes['useGeneratedPersisters']
+            : false;
+    }
+
+    /**
+     * Gets the boolean flag that indicates to use generated persisters.
+     *
+     * @param boolean $bool
+     */
+    public function setUseGeneratedPersisters($bool)
+    {
+        $this->_attributes['useGeneratedPersisters'] = $bool;
+    }
+
+    /**
      * Sets the cache driver implementation that is used for metadata caching.
      *
      * @param MappingDriver $driverImpl

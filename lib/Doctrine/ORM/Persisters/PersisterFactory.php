@@ -25,6 +25,9 @@ use Doctrine\Common\Util\ClassUtils;
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\Persisters\PersisterGenerationException;
 use Doctrine\ORM\Persisters\Generator\BasicEntityPersisterGenerator;
+use Doctrine\ORM\Persisters\Generator\SingleTablePersisterGenerator;
+use Doctrine\ORM\Persisters\Generator\JoinedSubclassPersisterGenerator;
+use Doctrine\ORM\Persisters\Generator\UnionSubclassPersisterGenerator;
 
 /**
  * @author  Fabio B. Silva <fabio.bat.silva@gmail.com>
@@ -122,7 +125,15 @@ class PersisterFactory
             return new BasicEntityPersisterGenerator($this->em, $class);
         }
 
-        return null;
+        if ($class->isInheritanceTypeSingleTable()) {
+            return new SingleTablePersisterGenerator($this->em, $class);
+        }
+
+        if ($class->isInheritanceTypeJoined()) {
+            return new JoinedSubclassPersisterGenerator($this->em, $class);
+        }
+
+        return UnionSubclassPersisterGenerator($this->em, $class);
     }
 
     /**
@@ -136,9 +147,9 @@ class PersisterFactory
     private function getEntityPersisterFileName($className, $directory = null)
     {
         $directory = $directory ?: $this->directory;
-        $path      = str_replace('\\', DIRECTORY_SEPARATOR, $className) . $this->classSuffix;
+        $path      = Proxy::MARKER . str_replace('\\', '', $className) . $this->classSuffix;
 
-        return $directory . DIRECTORY_SEPARATOR . Proxy::MARKER . DIRECTORY_SEPARATOR . $path . '.php';
+        return $directory . DIRECTORY_SEPARATOR . $path . '.php';
     }
 
     /**
@@ -217,7 +228,7 @@ class PersisterFactory
         if ( ! class_exists($persisterClass, false)) {
 
             $filename = $this->getEntityPersisterFileName($class->name);
-            
+
             if ($this->auto) {
                 $this->generateEntityPersisterClass($class, $persisterClass, $filename);
             }

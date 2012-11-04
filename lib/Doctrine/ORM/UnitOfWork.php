@@ -30,6 +30,7 @@ use Doctrine\Common\PropertyChangedListener;
 use Doctrine\Common\Persistence\ObjectManagerAware;
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\Proxy\Proxy;
+use Doctrine\ORM\Persisters\PersisterFactory;
 
 use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\ORM\Event\PreUpdateEventArgs;
@@ -199,6 +200,13 @@ class UnitOfWork implements PropertyChangedListener
     private $commitOrderCalculator;
 
     /**
+     * The PersisterFactory instances.
+     *
+     * @var \Doctrine\ORM\Persisters\PersisterFactory
+     */
+    private $persisterFactory;
+
+    /**
      * The entity persister instances used to persist entity instances.
      *
      * @var array
@@ -257,6 +265,16 @@ class UnitOfWork implements PropertyChangedListener
         $this->em               = $em;
         $this->evm              = $em->getEventManager();
         $this->listenersInvoker = new ListenersInvoker($em);
+        $config                 = $em->getConfiguration();
+
+        if($config->getUseGeneratedPersisters()) {
+            $this->persisterFactory = new PersisterFactory(
+                $em,
+                $config->getPersistersDir(),
+                $config->getPersistersNamespace(),
+                $config->getAutoGeneratePersisterClasses()
+            );
+        }
     }
 
     /**
@@ -2933,6 +2951,10 @@ class UnitOfWork implements PropertyChangedListener
         }
 
         $class = $this->em->getClassMetadata($entityName);
+
+        if ($this->persisterFactory !== null) {
+            return $this->persisters[$entityName] = $this->persisterFactory->getEntityPersister($class);
+        }
 
         switch (true) {
             case ($class->isInheritanceTypeNone()):
