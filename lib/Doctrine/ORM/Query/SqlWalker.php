@@ -1408,7 +1408,7 @@ class SqlWalker implements TreeWalker
      *
      * @return string The SQL.
      */
-    public function walkNewObject($newObjectExpression)
+    public function walkNewObject($newObjectExpression, $parent = null)
     {
         $sqlSelectExpressions = array();
         $objIndex             = $this->newObjectCounter++;
@@ -1416,10 +1416,16 @@ class SqlWalker implements TreeWalker
         foreach ($newObjectExpression->args as $argIndex => $e) {
             $resultAlias = $this->scalarResultCounter++;
             $columnAlias = $this->getSQLColumnAlias('sclr');
+            $mapping     = array(
+                'className'   => $newObjectExpression->className,
+                'objIndex'    => $objIndex,
+                'argIndex'    => $argIndex,
+                'parent'      => $parent
+            );
 
             switch (true) {
                 case ($e instanceof AST\NewObjectExpression):
-                    $sqlSelectExpressions[] = $e->dispatch($this);
+                    $sqlSelectExpressions[] = $this->walkNewObject($e, $mapping);
                     break;
 
                 default:
@@ -1453,14 +1459,10 @@ class SqlWalker implements TreeWalker
                     break;
             }
 
-            $this->scalarResultAliasMap[$resultAlias] = $columnAlias;
-            $this->rsm->addScalarResult($columnAlias, $resultAlias, $fieldType);
+            $this->rsm->newObjectMappings[$columnAlias] = $mapping;
+            $this->scalarResultAliasMap[$resultAlias]   = $columnAlias;
 
-            $this->rsm->newObjectMappings[$columnAlias] = array(
-                'className' => $newObjectExpression->className,
-                'objIndex'  => $objIndex,
-                'argIndex'  => $argIndex
-            );
+            $this->rsm->addScalarResult($columnAlias, $resultAlias, $fieldType);
         }
 
         return implode(', ', $sqlSelectExpressions);

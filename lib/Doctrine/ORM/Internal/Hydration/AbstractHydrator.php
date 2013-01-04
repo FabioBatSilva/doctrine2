@@ -279,6 +279,7 @@ abstract class AbstractHydrator
                     $mapping = $this->_rsm->newObjectMappings[$key];
 
                     $cache[$key]['isNewObjectParameter'] = true;
+                    $cache[$key]['parent']               = $mapping['parent'];
                     $cache[$key]['argIndex']             = $mapping['argIndex'];
                     $cache[$key]['objIndex']             = $mapping['objIndex'];
                     $cache[$key]['class']                = new \ReflectionClass($mapping['className']);
@@ -290,6 +291,18 @@ abstract class AbstractHydrator
                 $argIndex = $cache[$key]['argIndex'];
                 $objIndex = $cache[$key]['objIndex'];
                 $value    = $cache[$key]['type']->convertToPHPValue($value, $this->_platform);
+                
+                if($cache[$key]['parent'] !== null) {
+                    $parentObjIndex = $cache[$key]['parent']['objIndex'];
+                    $parentArgIndex = $cache[$key]['parent']['argIndex'];
+
+                    $rowData['newObjects'][$parentObjIndex]['isNested']                                 = true;
+                    $rowData['newObjects'][$parentObjIndex]['args'][$parentArgIndex]['isNewObject']     = true;
+                    $rowData['newObjects'][$parentObjIndex]['args'][$parentArgIndex]['class']           = $class;
+                    $rowData['newObjects'][$parentObjIndex]['args'][$parentArgIndex]['args'][$argIndex] = $value;
+
+                    continue;
+                }
 
                 $rowData['newObjects'][$objIndex]['class']           = $class;
                 $rowData['newObjects'][$objIndex]['args'][$argIndex] = $value;

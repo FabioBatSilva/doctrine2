@@ -593,7 +593,16 @@ class ObjectHydrator extends AbstractHydrator
             foreach ($newObjects as $objIndex => $newObject) {
                 $class  = $newObject['class'];
                 $args   = $newObject['args'];
-                $obj    = $class->newInstanceArgs($args);
+
+                if (isset($newObject['isNested'])) {
+                    foreach ($args as $argKey => $argVal) {
+                        if (is_array($argVal) && isset($argVal['isNewObject'])) {
+                            $args[$argKey] = $argVal['class']->newInstanceArgs($argVal['args']);
+                        }
+                    }
+                }
+
+                $obj = $class->newInstanceArgs($args);
 
                 if ($count === 1) {
                     $result[$resultKey] = $obj;

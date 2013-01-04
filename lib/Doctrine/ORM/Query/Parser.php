@@ -1788,14 +1788,16 @@ class Parser
     }
 
     /**
-     * NewObjectArg ::= ScalarExpression
-     *
-     * @TODO - Maybe you should support other expressions and nested "new" operator
+     * NewObjectArg ::= ScalarExpression | NewObjectExpression
      *
      * @return \Doctrine\ORM\Query\AST\SimpleSelectExpression
      */
     public function NewObjectArg()
     {
+        if ($this->lexer->isNextToken(Lexer::T_NEW)) {
+            return $this->NewObjectExpression();
+        }
+
         return $this->ScalarExpression();
     }
 
