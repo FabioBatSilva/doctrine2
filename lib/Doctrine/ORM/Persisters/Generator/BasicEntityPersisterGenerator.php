@@ -71,10 +71,12 @@ class BasicEntityPersisterGenerator extends PersisterGenerator
     protected function generateProperties()
     {
         $selectJoinSql    = $this->getPropertyValue($this->persister, 'selectJoinSql');
+        $sqlTableAliases  = $this->getPropertyValue($this->persister, 'sqlTableAliases');
         $selectColumnList = $this->getPropertyValue($this->persister, 'selectColumnListSql');
 
         return array(
             'selectJoinSql'         => $selectJoinSql,
+            'sqlTableAliases'       => $sqlTableAliases,
             'selectColumnListSql'   => $selectColumnList
         );
     }
@@ -84,11 +86,11 @@ class BasicEntityPersisterGenerator extends PersisterGenerator
     */
     protected function generateMethods()
     {
-        $getInsertSQL = $this->getInvokeMethod($this->persister, 'getInsertSQL');
-        $getInsertSQL = sprintf('return %s;', var_export($getInsertSQL, true));
+        $getInsertSQL  = $this->getInvokeMethod($this->persister, 'getInsertSQL');
+        $getInsertCode = sprintf('return %s;', var_export($getInsertSQL, true));
 
         return array(
-            'getInsertSQL' => $getInsertSQL,
+            'getInsertSQL' => $getInsertCode,
         );
     }
 

@@ -71,8 +71,8 @@ class <className> extends <parentClass> implements \Doctrine\ORM\Persisters\Gene
      */
     protected static $methodTemplate = '
     /**
-    * {@inheritdoc}
-    */
+     * {@inheritdoc}
+     */
     public function <methodName>()
     {
         <body>
@@ -83,8 +83,8 @@ class <className> extends <parentClass> implements \Doctrine\ORM\Persisters\Gene
      */
     protected static $constructorTemplate = '
     /**
-    * {@inheritdoc}
-    */
+     * {@inheritdoc}
+     */
     public function __construct($em, $class)
     {
         parent::__construct($em, $class);
@@ -97,8 +97,8 @@ class <className> extends <parentClass> implements \Doctrine\ORM\Persisters\Gene
      */
     protected static $propertyTemplate = '
     /**
-    * {@inheritdoc}
-    */
+     * {@inheritdoc}
+     */
     protected $<propertyName> = <value>;';
 
     /**

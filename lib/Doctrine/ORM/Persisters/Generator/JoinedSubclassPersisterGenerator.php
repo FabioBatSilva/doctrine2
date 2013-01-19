@@ -19,6 +19,8 @@
 
 namespace Doctrine\ORM\Persisters\Generator;
 
+use Doctrine\ORM\Persisters\JoinedSubclassPersister;
+
 /**
  * @author  Fabio B. Silva <fabio.bat.silva@gmail.com>
  * @since   2.4
@@ -35,7 +37,10 @@ class JoinedSubclassPersisterGenerator extends PersisterGenerator
     */
     public function initialize()
     {
+        $this->persister = new JoinedSubclassPersister($this->em, $this->class);
 
+        // initialize rsm
+        $this->getInvokeMethod($this->persister, 'getSelectColumnsSQL');
     }
 
     /**
@@ -43,7 +48,21 @@ class JoinedSubclassPersisterGenerator extends PersisterGenerator
     */
     protected function generateConstructor()
     {
-        return null;
+        $rsm    = $this->getPropertyValue($this->persister, 'rsm');
+        $code[] = '$this->rsm = new \Doctrine\ORM\Query\ResultSetMapping();';
+
+        foreach ($rsm as $property => $value) {
+
+            if (is_array($value) && empty($value)) {
+                continue;
+            }
+
+            $string = var_export($value, true);
+            $inline = str_replace(PHP_EOL, '', $string);
+            $code[] = sprintf('$this->rsm->%s = %s;', $property, $inline);
+        }
+
+        return implode(PHP_EOL . str_repeat(' ', 8), $code);
     }
 
     /**
@@ -51,7 +70,15 @@ class JoinedSubclassPersisterGenerator extends PersisterGenerator
     */
     protected function generateProperties()
     {
-        return array();
+        $sqlTableAliases  = $this->getPropertyValue($this->persister, 'sqlTableAliases');
+        $selectJoinSql    = $this->getPropertyValue($this->persister, 'selectJoinSql');
+        $selectColumnList = $this->getPropertyValue($this->persister, 'selectColumnListSql');
+
+        return array(
+            'selectJoinSql'         => $selectJoinSql,
+            'sqlTableAliases'       => $sqlTableAliases,
+            'selectColumnListSql'   => $selectColumnList,
+        );
     }
 
     /**
@@ -59,7 +86,12 @@ class JoinedSubclassPersisterGenerator extends PersisterGenerator
     */
     protected function generateMethods()
     {
-        return array();
+        $getInsertSQL  = $this->getInvokeMethod($this->persister, 'getInsertSQL');
+        $getInsertCode = sprintf('return %s;', var_export($getInsertSQL, true));
+
+        return array(
+            'getInsertSQL' => $getInsertCode,
+        );
     }
 
     /**
