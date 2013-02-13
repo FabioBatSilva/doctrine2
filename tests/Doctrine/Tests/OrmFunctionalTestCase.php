@@ -2,6 +2,9 @@
 
 namespace Doctrine\Tests;
 
+use Doctrine\Common\Cache\Cache;
+use Doctrine\ORM\EntityManager;
+
 /**
  * Base testcase class for all functional ORM testcases.
  *
@@ -9,6 +12,16 @@ namespace Doctrine\Tests;
  */
 abstract class OrmFunctionalTestCase extends OrmTestCase
 {
+    /**
+     * @var boolean
+     */
+    private $isSecondLevelCacheEnabled = false;
+
+    /**
+     * @var \Doctrine\Common\Cache\CacheProvider
+     */
+    private $secondLevelCacheAccessProvider;
+
     /**
      * The metadata cache shared between all functional tests.
      *
@@ -155,7 +168,12 @@ abstract class OrmFunctionalTestCase extends OrmTestCase
             'Doctrine\Tests\Models\CompositeKeyInheritance\JoinedChildClass',
             'Doctrine\Tests\Models\CompositeKeyInheritance\SingleRootClass',
             'Doctrine\Tests\Models\CompositeKeyInheritance\SingleChildClass',
-        )
+        ),
+        'cache' => array(
+            'Doctrine\Tests\Models\Cache\Country',
+            'Doctrine\Tests\Models\Cache\State',
+            'Doctrine\Tests\Models\Cache\City',
+        ),
     );
 
     /**
@@ -284,8 +302,11 @@ abstract class OrmFunctionalTestCase extends OrmTestCase
             $conn->executeUpdate('DELETE FROM SingleRootClass');
         }
 
-
-        $this->_em->clear();
+        if (isset($this->_usedModelSets['cache_country'])) {
+            $conn->executeUpdate('DELETE FROM cache_country');
+            $conn->executeUpdate('DELETE FROM cache_state');
+            $conn->executeUpdate('DELETE FROM cache_city');
+        }
     }
 
     /**
@@ -399,6 +420,11 @@ abstract class OrmFunctionalTestCase extends OrmTestCase
         $config->setProxyDir(__DIR__ . '/Proxies');
         $config->setProxyNamespace('Doctrine\Tests\Proxies');
 
+        if ($this->isSecondLevelCacheEnabled) {
+            $config->setSecondLevelCacheEnabled();
+            $config->setSecondLevelCacheAccessProvider($this->secondLevelCacheAccessProvider);
+        }
+
         $config->setMetadataDriverImpl($config->newDefaultAnnotationDriver(array(), true));
 
         $conn = static::$_sharedConn;
@@ -424,6 +450,19 @@ abstract class OrmFunctionalTestCase extends OrmTestCase
         }
 
         return \Doctrine\ORM\EntityManager::create($conn, $config);
+    }
+
+
+    /**
+     * @param \Doctrine\Common\Cache\Cache $cache
+     */
+    protected function enableSecondLevelCache(Cache $cache = null)
+    {
+        $cache      = $cache ?: self::getSharedSecondLevelCacheDriverImpl();
+        $provider   = new \Doctrine\ORM\Cache\CacheAccessProvider($cache);
+
+        $this->secondLevelCacheAccessProvider   = $provider;
+        $this->isSecondLevelCacheEnabled        = true;
     }
 
     /**
