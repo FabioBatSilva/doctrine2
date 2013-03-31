@@ -2153,6 +2153,11 @@ class BasicEntityPersister
         return $sql ? "(" . $sql . ")" : ""; // Wrap again to avoid "X or Y and FilterConditionSQL"
     }
 
+    /**
+     * Execute operations after transaction complete
+     *
+     * @return void
+     */
     public function afterTransactionComplete()
     {
         $uow = $this->em->getUnitOfWork();
@@ -2187,9 +2192,14 @@ class BasicEntityPersister
             }
         }
 
-        $this->queuedCache = array();;
+        $this->queuedCache = array();
     }
 
+    /**
+     * Execute operations after transaction rollback
+     *
+     * @return void
+     */
     public function afterTransactionRolledBack()
     {
         if ( ! $this->isConcurrentRegion) {
