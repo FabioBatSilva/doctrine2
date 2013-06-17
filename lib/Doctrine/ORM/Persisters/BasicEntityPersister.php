@@ -1153,7 +1153,7 @@ class BasicEntityPersister
         if ($hasCache) {
             $ownerId = $this->em->getUnitOfWork()->getEntityIdentifier($coll->getOwner());
             $key     = new CollectionCacheKey($assoc['sourceEntity'], $assoc['fieldName'], $ownerId);
-            $list    = $collPersister->loadCachedCollection($coll, $key);
+            $list    = $collPersister->loadCollectionCache($coll, $key);
 
             if ($list !== null) {
                 return $list;
@@ -1164,7 +1164,7 @@ class BasicEntityPersister
         $list = $this->loadCollectionFromStatement($assoc, $stmt, $coll);
 
         if ($hasCache && ! empty($list)) {
-            $collPersister->saveLoadedCollection($coll->getTypeClass(), $key, $list);
+            $collPersister->saveCollectionCache($key, $list);
         }
 
         return $list;
@@ -1896,7 +1896,7 @@ class BasicEntityPersister
         if ($hasCache) {
             $ownerId = $this->em->getUnitOfWork()->getEntityIdentifier($coll->getOwner());
             $key     = new CollectionCacheKey($assoc['sourceEntity'], $assoc['fieldName'], $ownerId);
-            $list    = $collPersister->loadCachedCollection($coll, $key);
+            $list    = $collPersister->loadCollectionCache($coll, $key);
 
             if ($list !== null) {
                 return $list;
@@ -1907,7 +1907,7 @@ class BasicEntityPersister
         $list = $this->loadCollectionFromStatement($assoc, $stmt, $coll);
 
         if ($hasCache && ! empty($list)) {
-            $collPersister->saveLoadedCollection($coll->getTypeClass(), $key, $list);
+            $collPersister->saveCollectionCache($key, $list);
         }
 
         return $list;
