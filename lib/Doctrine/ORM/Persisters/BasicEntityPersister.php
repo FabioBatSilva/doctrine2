@@ -1146,20 +1146,25 @@ class BasicEntityPersister
      */
     public function loadManyToManyCollection(array $assoc, $sourceEntity, PersistentCollection $coll)
     {
-        $persister = $this->em->getUnitOfWork()->getCollectionPersister($assoc);
-        $hasCache  = $persister->hasCache();
+        $hasCache  = false;
         $key       = null;
+        $persister = null;
 
-        if ($hasCache) {
-            $ownerId = $this->em->getUnitOfWork()->getEntityIdentifier($coll->getOwner());
-            $key     = new CollectionCacheKey($assoc['sourceEntity'], $assoc['fieldName'], $ownerId);
-            $list    = $persister->loadCollectionCache($coll, $key);
+        if ($this->hasCache) {
+            $persister = $this->em->getUnitOfWork()->getCollectionPersister($assoc);
+            $hasCache  = $persister->hasCache();
 
-            if ($list !== null) {
-                return $list;
+            if ($hasCache) {
+                $ownerId = $this->em->getUnitOfWork()->getEntityIdentifier($coll->getOwner());
+                $key     = new CollectionCacheKey($assoc['sourceEntity'], $assoc['fieldName'], $ownerId);
+                $list    = $persister->loadCollectionCache($coll, $key);
+
+                if ($list !== null) {
+                    return $list;
+                }
             }
         }
-
+        
         $stmt = $this->getManyToManyStatement($assoc, $sourceEntity);
         $list = $this->loadCollectionFromStatement($assoc, $stmt, $coll);
 
@@ -1889,17 +1894,22 @@ class BasicEntityPersister
      */
     public function loadOneToManyCollection(array $assoc, $sourceEntity, PersistentCollection $coll)
     {
-        $persister = $this->em->getUnitOfWork()->getCollectionPersister($assoc);
-        $hasCache  = $persister->hasCache();
+        $hasCache  = false;
         $key       = null;
+        $persister = null;
 
-        if ($hasCache) {
-            $ownerId = $this->em->getUnitOfWork()->getEntityIdentifier($coll->getOwner());
-            $key     = new CollectionCacheKey($assoc['sourceEntity'], $assoc['fieldName'], $ownerId);
-            $list    = $persister->loadCollectionCache($coll, $key);
+        if ($this->hasCache) {
+            $persister = $this->em->getUnitOfWork()->getCollectionPersister($assoc);
+            $hasCache  = $persister->hasCache();
 
-            if ($list !== null) {
-                return $list;
+           if ($hasCache) {
+                $ownerId = $this->em->getUnitOfWork()->getEntityIdentifier($coll->getOwner());
+                $key     = new CollectionCacheKey($assoc['sourceEntity'], $assoc['fieldName'], $ownerId);
+                $list    = $persister->loadCollectionCache($coll, $key);
+
+                if ($list !== null) {
+                    return $list;
+                }
             }
         }
 
