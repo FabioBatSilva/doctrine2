@@ -38,7 +38,6 @@ use Doctrine\Common\Collections\Expr\Comparison;
 
 use Doctrine\ORM\Cache\EntityCacheKey;
 use Doctrine\ORM\Cache\CollectionCacheKey;
-use Doctrine\ORM\Cache\EntityEntryStructure;
 use Doctrine\ORM\Cache\ConcurrentRegionAccess;
 
 /**
@@ -888,7 +887,8 @@ class BasicEntityPersister
         $entity = $this->load($identifier, $entity, null, array(), $lockMode);
 
         if ($this->hasCache && $entity !== null) {
-            $cacheEntry = $this->cacheEntryStructure->buildCacheEntry($this->class, $cacheKey, $entity);
+            $class      = $this->em->getClassMetadata(ClassUtils::getClass($entity));
+            $cacheEntry = $this->cacheEntryStructure->buildCacheEntry($class, $cacheKey, $entity);
 
             $this->cacheRegionAccess->put($cacheKey, $cacheEntry);
         }
@@ -2163,8 +2163,9 @@ class BasicEntityPersister
         if (isset($this->queuedCache['insert'])) {
             foreach ($this->queuedCache['insert'] as $item) {
 
-                $key    = new EntityCacheKey($this->class->rootEntityName, $uow->getEntityIdentifier($item['entity']));
-                $entry  = $this->cacheEntryStructure->buildCacheEntry($this->class, $key, $item['entity']);
+                $class  = $this->em->getClassMetadata(ClassUtils::getClass($item['entity']));
+                $key    = new EntityCacheKey($class->rootEntityName, $uow->getEntityIdentifier($item['entity']));
+                $entry  = $this->cacheEntryStructure->buildCacheEntry($class, $key, $item['entity']);
 
                 $this->cacheRegionAccess->afterInsert($key, $entry);
             }
@@ -2173,8 +2174,9 @@ class BasicEntityPersister
         if (isset($this->queuedCache['update'])) {
             foreach ($this->queuedCache['update'] as $item) {
 
-                $key    = $item['key'] ?: new EntityCacheKey($this->class->rootEntityName, $uow->getEntityIdentifier($item['entity']));
-                $entry  = $this->cacheEntryStructure->buildCacheEntry($this->class, $key,  $item['entity']);
+                $class  = $this->em->getClassMetadata(ClassUtils::getClass($item['entity']));
+                $key    = new EntityCacheKey($class->rootEntityName, $uow->getEntityIdentifier($item['entity']));
+                $entry  = $this->cacheEntryStructure->buildCacheEntry($class, $key, $item['entity']);
 
                 $this->cacheRegionAccess->afterUpdate($key, $entry);
 
