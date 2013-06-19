@@ -236,6 +236,11 @@ class BasicEntityPersister
     protected $cacheEntryStructure;
 
     /**
+     * @var \Doctrine\ORM\Cache\Logging\CacheLogger
+     */
+    protected $cacheLogger;
+
+    /**
      * Initializes a new <tt>BasicEntityPersister</tt> that uses the given EntityManager
      * and persists instances of the class described by the given ClassMetadata descriptor.
      *
@@ -247,14 +252,16 @@ class BasicEntityPersister
         $this->em               = $em;
         $this->class            = $class;
         $this->conn             = $em->getConnection();
+        $configuration          = $em->getConfiguration();
         $this->platform         = $this->conn->getDatabasePlatform();
-        $this->quoteStrategy    = $em->getConfiguration()->getQuoteStrategy();
+        $this->quoteStrategy    = $configuration->getQuoteStrategy();
         $this->hasCache         = ($class->cache !== null) && $em->getConfiguration()->isSecondLevelCacheEnabled();
 
         if ($this->hasCache) {
-            $cacheFactory               = $em->getConfiguration()->getSecondLevelCacheFactory();
-            $this->cacheRegionAccess    = $cacheFactory->buildEntityRegionAccessStrategy($this->class);
+            $cacheFactory               = $configuration->getSecondLevelCacheFactory();
+            $this->cacheLogger          = $configuration->getSecondLevelCacheLogger();
             $this->cacheEntryStructure  = $cacheFactory->buildEntityEntryStructure($em);
+            $this->cacheRegionAccess    = $cacheFactory->buildEntityRegionAccessStrategy($this->class);
             $this->isConcurrentRegion   = ($this->cacheRegionAccess instanceof ConcurrentRegionAccess);
         }
     }
@@ -879,7 +886,16 @@ class BasicEntityPersister
             $cacheEntry = $this->cacheRegionAccess->get($cacheKey);
 
             if ($cacheEntry !== null) {
+
+                if ($this->cacheLogger) {
+                    $this->cacheLogger->entityCacheHit($this->cacheRegionAccess->getRegion()->getName(), $cacheKey);
+                }
+
                 return $this->cacheEntryStructure->loadCacheEntry($this->class, $cacheKey, $cacheEntry, $entity);
+            }
+
+            if ($this->cacheLogger) {
+                $this->cacheLogger->entityCacheMiss($this->cacheRegionAccess->getRegion()->getName(), $cacheKey);
             }
         }
 
@@ -888,8 +904,11 @@ class BasicEntityPersister
         if ($this->hasCache && $entity !== null) {
             $class      = $this->em->getClassMetadata(ClassUtils::getClass($entity));
             $cacheEntry = $this->cacheEntryStructure->buildCacheEntry($class, $cacheKey, $entity);
+            $cached     = $this->cacheRegionAccess->put($cacheKey, $cacheEntry);
 
-            $this->cacheRegionAccess->put($cacheKey, $cacheEntry);
+            if ($this->cacheLogger && $cached) {
+                $this->cacheLogger->entityCachePut($this->cacheRegionAccess->getRegion()->getName(), $cacheKey);
+            }
         }
 
         return $entity;
@@ -1159,7 +1178,16 @@ class BasicEntityPersister
                 $list    = $persister->loadCollectionCache($coll, $key);
 
                 if ($list !== null) {
+
+                    if ($this->cacheLogger) {
+                        $this->cacheLogger->collectionCacheHit($this->cacheRegionAccess->getRegion()->getName(), $key);
+                    }
+
                     return $list;
+                }
+
+                if ($this->cacheLogger) {
+                    $this->cacheLogger->collectionCacheMiss($this->cacheRegionAccess->getRegion()->getName(), $key);
                 }
             }
         }
@@ -2175,8 +2203,11 @@ class BasicEntityPersister
                 $class  = $this->em->getClassMetadata(ClassUtils::getClass($item['entity']));
                 $key    = new EntityCacheKey($class->rootEntityName, $uow->getEntityIdentifier($item['entity']));
                 $entry  = $this->cacheEntryStructure->buildCacheEntry($class, $key, $item['entity']);
+                $cached = $this->cacheRegionAccess->afterInsert($key, $entry);
 
-                $this->cacheRegionAccess->afterInsert($key, $entry);
+                if ($this->cacheLogger && $cached) {
+                    $this->cacheLogger->entityCachePut($this->cacheRegionAccess->getRegion()->getName(), $key);
+                }
             }
         }
 
@@ -2186,8 +2217,11 @@ class BasicEntityPersister
                 $class  = $this->em->getClassMetadata(ClassUtils::getClass($item['entity']));
                 $key    = new EntityCacheKey($class->rootEntityName, $uow->getEntityIdentifier($item['entity']));
                 $entry  = $this->cacheEntryStructure->buildCacheEntry($class, $key, $item['entity']);
+                $cached = $this->cacheRegionAccess->afterUpdate($key, $entry);
 
-                $this->cacheRegionAccess->afterUpdate($key, $entry);
+                if ($this->cacheLogger && $cached) {
+                    $this->cacheLogger->entityCachePut($this->cacheRegionAccess->getRegion()->getName(), $key);
+                }
 
                 if ($this->isConcurrentRegion && $item['lock'] !== null) {
                     $this->cacheRegionAccess->unlockItem($key, $item['lock']);
