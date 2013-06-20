@@ -2198,6 +2198,26 @@ class BasicEntityPersister implements CachedPersister
     }
 
     /**
+     * @param object $entity
+     * @param \Doctrine\ORM\Cache\EntityCacheKey $key
+     * 
+     * @return boolean
+     */
+    public function putEntityCache($entity, EntityCacheKey $key)
+    {
+        $class  = $this->em->getClassMetadata(ClassUtils::getClass($entity));
+        $key    = $key ?: new EntityCacheKey($class->rootEntityName, $this->em->getUnitOfWork()->getEntityIdentifier($item['entity']));
+        $entry  = $this->cacheEntryStructure->buildCacheEntry($class, $key, $entity);
+        $cached = $this->cacheRegionAccess->put($key, $entry);
+
+        if ($this->cacheLogger && $cached) {
+            $this->cacheLogger->entityCachePut($this->cacheRegionAccess->getRegion()->getName(), $key);
+        }
+
+        return $cached;
+    }
+
+    /**
      * Execute operations after transaction complete
      *
      * @return void
@@ -2210,7 +2230,7 @@ class BasicEntityPersister implements CachedPersister
             foreach ($this->queuedCache['insert'] as $item) {
 
                 $class  = $this->em->getClassMetadata(ClassUtils::getClass($item['entity']));
-                $key    = new EntityCacheKey($class->rootEntityName, $uow->getEntityIdentifier($item['entity']));
+                $key    = $item['key'] ?: new EntityCacheKey($class->rootEntityName, $uow->getEntityIdentifier($item['entity']));
                 $entry  = $this->cacheEntryStructure->buildCacheEntry($class, $key, $item['entity']);
                 $cached = $this->cacheRegionAccess->afterInsert($key, $entry);
 
@@ -2224,7 +2244,7 @@ class BasicEntityPersister implements CachedPersister
             foreach ($this->queuedCache['update'] as $item) {
 
                 $class  = $this->em->getClassMetadata(ClassUtils::getClass($item['entity']));
-                $key    = new EntityCacheKey($class->rootEntityName, $uow->getEntityIdentifier($item['entity']));
+                $key    = $item['key'] ?: new EntityCacheKey($class->rootEntityName, $uow->getEntityIdentifier($item['entity']));
                 $entry  = $this->cacheEntryStructure->buildCacheEntry($class, $key, $item['entity']);
                 $cached = $this->cacheRegionAccess->afterUpdate($key, $entry);
 
