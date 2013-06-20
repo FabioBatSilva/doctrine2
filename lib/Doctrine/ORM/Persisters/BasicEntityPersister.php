@@ -82,7 +82,7 @@ use Doctrine\ORM\Cache\ConcurrentRegionAccess;
  * @author Fabio B. Silva <fabio.bat.silva@gmail.com>
  * @since 2.0
  */
-class BasicEntityPersister
+class BasicEntityPersister implements CachedPersister
 {
     /**
      * @var array
@@ -893,10 +893,6 @@ class BasicEntityPersister
 
                 return $this->cacheEntryStructure->loadCacheEntry($this->class, $cacheKey, $cacheEntry, $entity);
             }
-
-            if ($this->cacheLogger) {
-                $this->cacheLogger->entityCacheMiss($this->cacheRegionAccess->getRegion()->getName(), $cacheKey);
-            }
         }
 
         $entity = $this->load($identifier, $entity);
@@ -908,6 +904,10 @@ class BasicEntityPersister
 
             if ($this->cacheLogger && $cached) {
                 $this->cacheLogger->entityCachePut($this->cacheRegionAccess->getRegion()->getName(), $cacheKey);
+            }
+
+            if ($this->cacheLogger) {
+                $this->cacheLogger->entityCacheMiss($this->cacheRegionAccess->getRegion()->getName(), $cacheKey);
             }
         }
 
@@ -1180,14 +1180,10 @@ class BasicEntityPersister
                 if ($list !== null) {
 
                     if ($this->cacheLogger) {
-                        $this->cacheLogger->collectionCacheHit($this->cacheRegionAccess->getRegion()->getName(), $key);
+                        $this->cacheLogger->collectionCacheHit($persister->getCacheRegionAcess()->getRegion()->getName(), $key);
                     }
 
                     return $list;
-                }
-
-                if ($this->cacheLogger) {
-                    $this->cacheLogger->collectionCacheMiss($this->cacheRegionAccess->getRegion()->getName(), $key);
                 }
             }
         }
@@ -1197,6 +1193,10 @@ class BasicEntityPersister
 
         if ($hasCache && ! empty($list)) {
             $persister->saveCollectionCache($key, $list);
+
+            if ($this->cacheLogger) {
+                $this->cacheLogger->collectionCacheMiss($persister->getCacheRegionAcess()->getRegion()->getName(), $key);
+            }
         }
 
         return $list;
@@ -1935,6 +1935,11 @@ class BasicEntityPersister
                 $list    = $persister->loadCollectionCache($coll, $key);
 
                 if ($list !== null) {
+
+                    if ($this->cacheLogger) {
+                        $this->cacheLogger->collectionCacheHit($persister->getCacheRegionAcess()->getRegion()->getName(), $key);
+                    }
+
                     return $list;
                 }
             }
@@ -1945,6 +1950,10 @@ class BasicEntityPersister
         
         if ($hasCache && ! empty($list)) {
             $persister->saveCollectionCache($key, $list);
+
+            if ($this->cacheLogger) {
+                $this->cacheLogger->collectionCacheMiss($persister->getCacheRegionAcess()->getRegion()->getName(), $key);
+            }
         }
 
         return $list;
