@@ -1045,7 +1045,9 @@ abstract class AbstractQuery
         $params = array();
 
         foreach ($this->parameters as $parameter) {
-            $params[$parameter->getName()] = $this->processParameterValue($parameter->getValue());
+            $value = $parameter->getValue();
+
+            $params[$parameter->getName()] = is_scalar($value) ? $value : $this->processParameterValue($value);
         }
 
         ksort($hints);
