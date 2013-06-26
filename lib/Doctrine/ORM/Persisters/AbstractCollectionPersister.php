@@ -300,7 +300,7 @@ abstract class AbstractCollectionPersister implements CachedPersister
         $entry              = $this->cacheEntryStructure->buildCacheEntry($this->targetEntity, $key, $elements);
 
         foreach ($entry->identifiers as $index => $identifier) {
-            $entityKey   = new EntityCacheKey($this->targetEntity->rootEntityName, $identifier);
+            $entityKey = new EntityCacheKey($this->targetEntity->rootEntityName, $identifier);
 
             if ($targetRegion->contains($entityKey)) {
                 continue;
