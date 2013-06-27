@@ -885,13 +885,13 @@ class BasicEntityPersister implements CachedPersister
             $cacheKey   = new EntityCacheKey($this->class->rootEntityName, $identifier);
             $cacheEntry = $this->cacheRegionAccess->get($cacheKey);
 
-            if ($cacheEntry !== null) {
+            if ($cacheEntry !== null && ($entity = $this->cacheEntryStructure->loadCacheEntry($this->class, $cacheKey, $cacheEntry, $entity)) !== null) {
 
                 if ($this->cacheLogger) {
                     $this->cacheLogger->entityCacheHit($this->cacheRegionAccess->getRegion()->getName(), $cacheKey);
                 }
 
-                return $this->cacheEntryStructure->loadCacheEntry($this->class, $cacheKey, $cacheEntry, $entity);
+                return $entity;
             }
         }
 
@@ -2206,7 +2206,6 @@ class BasicEntityPersister implements CachedPersister
     public function putEntityCache($entity, EntityCacheKey $key)
     {
         $class  = $this->em->getClassMetadata(ClassUtils::getClass($entity));
-        $key    = $key ?: new EntityCacheKey($class->rootEntityName, $this->em->getUnitOfWork()->getEntityIdentifier($item['entity']));
         $entry  = $this->cacheEntryStructure->buildCacheEntry($class, $key, $entity);
         $cached = $this->cacheRegionAccess->put($key, $entry);
 
