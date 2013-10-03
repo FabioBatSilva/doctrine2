@@ -97,8 +97,9 @@ abstract class AbstractEntityPersister implements CachedEntityPersister
      */
     public function __construct(EntityPersister $persister, Region $region, EntityManagerInterface $em, ClassMetadata $class)
     {
-        $config  = $em->getConfiguration();
-        $factory = $config->getSecondLevelCacheFactory();
+        $configuration  = $em->getConfiguration();
+        $cacheConfig    = $configuration->getSecondLevelCacheConfig();
+        $cacheFactory   = $cacheConfig->getCacheFactory();
 
         $this->class            = $class;
         $this->region           = $region;
@@ -107,8 +108,8 @@ abstract class AbstractEntityPersister implements CachedEntityPersister
         $this->regionName       = $region->getName();
         $this->uow              = $em->getUnitOfWork();
         $this->metadataFactory  = $em->getMetadataFactory();
-        $this->cacheLogger      = $config->getSecondLevelCacheLogger();
-        $this->hidrator         = $factory->buildEntityHydrator($em, $class);
+        $this->cacheLogger      = $cacheConfig->getCacheLogger();
+        $this->hidrator         = $cacheFactory->buildEntityHydrator($em, $class);
     }
 
     /**

@@ -98,7 +98,8 @@ abstract class AbstractCollectionPersister implements CachedCollectionPersister
     public function __construct(CollectionPersister $persister, Region $region, EntityManagerInterface $em, array $association)
     {
         $configuration  = $em->getConfiguration();
-        $cacheFactory   = $configuration->getSecondLevelCacheFactory();
+        $cacheConfig    = $configuration->getSecondLevelCacheConfig();
+        $cacheFactory   = $cacheConfig->getCacheFactory();
 
         $this->region           = $region;
         $this->persister        = $persister;
@@ -106,7 +107,7 @@ abstract class AbstractCollectionPersister implements CachedCollectionPersister
         $this->regionName       = $region->getName();
         $this->uow              = $em->getUnitOfWork();
         $this->metadataFactory  = $em->getMetadataFactory();
-        $this->cacheLogger      = $configuration->getSecondLevelCacheLogger();
+        $this->cacheLogger      = $cacheConfig->getCacheLogger();
         $this->hidrator         = $cacheFactory->buildCollectionHydrator($em, $association);
         $this->sourceEntity     = $em->getClassMetadata($association['sourceEntity']);
         $this->targetEntity     = $em->getClassMetadata($association['targetEntity']);
