@@ -25,7 +25,7 @@ use Doctrine\Common\Annotations\CachedReader;
 use Doctrine\Common\Annotations\SimpleAnnotationReader;
 use Doctrine\Common\Cache\ArrayCache;
 use Doctrine\Common\Cache\Cache as CacheDriver;
-use Doctrine\ORM\Cache\CacheConfig;
+use Doctrine\ORM\Cache\CacheConfiguration;
 use Doctrine\Common\Persistence\Mapping\Driver\MappingDriver;
 use Doctrine\ORM\Mapping\DefaultEntityListenerResolver;
 use Doctrine\ORM\Mapping\DefaultNamingStrategy;
@@ -834,28 +834,28 @@ class Configuration extends \Doctrine\DBAL\Configuration
     /**
      * @since 2.5
      *
-     * @param \Doctrine\ORM\Cache\CacheConfig $cacheConfig
+     * @param \Doctrine\ORM\Cache\CacheConfiguration $cacheConfig
      *
      * @return void
      */
-    public function setSecondLevelCacheConfig(CacheConfig $cacheConfig)
+    public function setSecondLevelCacheConfiguration(CacheConfiguration $cacheConfig)
     {
-        $this->_attributes['secondLevelCacheConfig'] = $cacheConfig;
+        $this->_attributes['secondLevelCacheConfiguration'] = $cacheConfig;
     }
 
     /**
      * @since 2.5
      *
-     * @return  \Doctrine\ORM\Cache\CacheConfig|null
+     * @return  \Doctrine\ORM\Cache\CacheConfiguration|null
      */
-    public function getSecondLevelCacheConfig()
+    public function getSecondLevelCacheConfiguration()
     {
-        if ( ! isset($this->_attributes['secondLevelCacheConfig']) && $this->isSecondLevelCacheEnabled()) {
-            $this->_attributes['secondLevelCacheConfig'] = new CacheConfig();
+        if ( ! isset($this->_attributes['secondLevelCacheConfiguration']) && $this->isSecondLevelCacheEnabled()) {
+            $this->_attributes['secondLevelCacheConfiguration'] = new CacheConfiguration();
         }
 
-        return isset($this->_attributes['secondLevelCacheConfig'])
-            ? $this->_attributes['secondLevelCacheConfig']
+        return isset($this->_attributes['secondLevelCacheConfiguration'])
+            ? $this->_attributes['secondLevelCacheConfiguration']
             : null;
     }
 }

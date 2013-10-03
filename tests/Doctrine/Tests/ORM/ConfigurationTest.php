@@ -278,11 +278,11 @@ class ConfigurationTest extends PHPUnit_Framework_TestCase
      */
     public function testSetGetSecondLevelCacheConfig()
     {
-        $mockClass = $this->getMock('Doctrine\ORM\Cache\CacheConfig');
+        $mockClass = $this->getMock('Doctrine\ORM\Cache\CacheConfiguration');
 
-        $this->assertNull($this->configuration->getSecondLevelCacheConfig());
-        $this->configuration->setSecondLevelCacheConfig($mockClass);
-        $this->assertEquals($mockClass, $this->configuration->getSecondLevelCacheConfig());
+        $this->assertNull($this->configuration->getSecondLevelCacheConfiguration());
+        $this->configuration->setSecondLevelCacheConfiguration($mockClass);
+        $this->assertEquals($mockClass, $this->configuration->getSecondLevelCacheConfiguration());
     }
 }
 

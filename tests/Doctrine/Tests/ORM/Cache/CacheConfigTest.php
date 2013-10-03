@@ -3,7 +3,7 @@
 namespace Doctrine\Tests\ORM\Cache;
 
 use Doctrine\Tests\DoctrineTestCase;
-use Doctrine\ORM\Cache\CacheConfig;
+use Doctrine\ORM\Cache\CacheConfiguration;
 
 /**
  * @group DDC-2183
@@ -11,7 +11,7 @@ use Doctrine\ORM\Cache\CacheConfig;
 class CacheConfigTest extends DoctrineTestCase
 {
     /**
-     * @var \Doctrine\ORM\Cache\CacheConfig
+     * @var \Doctrine\ORM\Cache\CacheConfiguration
      */
     private $config;
 
@@ -19,7 +19,7 @@ class CacheConfigTest extends DoctrineTestCase
     {
         parent::setUp();
 
-        $this->config = new CacheConfig();
+        $this->config = new CacheConfiguration();
     }
 
     public function testSetGetCacheClassName()
@@ -36,7 +36,7 @@ class CacheConfigTest extends DoctrineTestCase
 
     public function testSetGetRegionLifetime()
     {
-        $config = $this->config->getRegionsConfig();
+        $config = $this->config->getRegionsConfiguration();
 
         $config->setDefaultLifetime(111);
 

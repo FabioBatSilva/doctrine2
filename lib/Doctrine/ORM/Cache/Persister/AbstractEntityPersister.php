@@ -98,7 +98,7 @@ abstract class AbstractEntityPersister implements CachedEntityPersister
     public function __construct(EntityPersister $persister, Region $region, EntityManagerInterface $em, ClassMetadata $class)
     {
         $configuration  = $em->getConfiguration();
-        $cacheConfig    = $configuration->getSecondLevelCacheConfig();
+        $cacheConfig    = $configuration->getSecondLevelCacheConfiguration();
         $cacheFactory   = $cacheConfig->getCacheFactory();
 
         $this->class            = $class;

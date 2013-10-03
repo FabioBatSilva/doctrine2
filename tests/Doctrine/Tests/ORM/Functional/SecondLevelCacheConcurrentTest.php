@@ -32,7 +32,7 @@ class SecondLevelCacheConcurrentTest extends SecondLevelCacheAbstractTest
         $this->cacheFactory = new CacheFactorySecondLevelCacheConcurrentTest($this->getSharedSecondLevelCacheDriverImpl());
 
         $this->_em->getConfiguration()
-            ->getSecondLevelCacheConfig()
+            ->getSecondLevelCacheConfiguration()
             ->setCacheFactory($this->cacheFactory);
 
         $this->countryMetadata = $this->_em->getClassMetadata(Country::CLASSNAME);

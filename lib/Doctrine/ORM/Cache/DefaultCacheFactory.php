@@ -22,7 +22,7 @@ namespace Doctrine\ORM\Cache;
 
 use Doctrine\ORM\Cache;
 use Doctrine\ORM\Cache\Region;
-use Doctrine\ORM\Cache\RegionsConfig;
+use Doctrine\ORM\Cache\RegionsConfiguration;
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Cache\Region\DefaultRegion;
@@ -50,7 +50,7 @@ class DefaultCacheFactory implements CacheFactory
     private $cache;
 
     /**
-     * @var \Doctrine\ORM\Cache\RegionsConfig
+     * @var \Doctrine\ORM\Cache\RegionsConfiguration
      */
     private $regionsConfig;
 
@@ -65,10 +65,10 @@ class DefaultCacheFactory implements CacheFactory
     private $fileLockRegionDirectory;
 
     /**
-     * @param \Doctrine\ORM\Cache\RegionsConfig     $cacheConfig
-     * @param \Doctrine\Common\Cache\Cache          $cache
+     * @param \Doctrine\ORM\Cache\RegionsConfiguration  $cacheConfig
+     * @param \Doctrine\Common\Cache\Cache              $cache
      */
-    public function __construct(RegionsConfig $cacheConfig, CacheDriver $cache)
+    public function __construct(RegionsConfiguration $cacheConfig, CacheDriver $cache)
     {
         $this->cache         = $cache;
         $this->regionsConfig = $cacheConfig;

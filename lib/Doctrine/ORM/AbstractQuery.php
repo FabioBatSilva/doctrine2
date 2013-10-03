@@ -165,7 +165,7 @@ abstract class AbstractQuery
 
         if ($this->_em->getConfiguration()->isSecondLevelCacheEnabled()) {
             $this->cacheLogger  = $em->getConfiguration()
-                ->getSecondLevelCacheConfig()
+                ->getSecondLevelCacheConfiguration()
                 ->getCacheLogger();
         }
     }

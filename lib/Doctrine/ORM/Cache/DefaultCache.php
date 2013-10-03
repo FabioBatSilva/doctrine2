@@ -70,7 +70,7 @@ class DefaultCache implements Cache
         $this->em           = $em;
         $this->uow          = $em->getUnitOfWork();
         $this->cacheFactory = $em->getConfiguration()
-            ->getSecondLevelCacheConfig()
+            ->getSecondLevelCacheConfiguration()
             ->getCacheFactory();
     }
 

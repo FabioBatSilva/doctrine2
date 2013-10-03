@@ -128,15 +128,15 @@ abstract class OrmTestCase extends DoctrineTestCase
 
         if ($this->isSecondLevelCacheEnabled) {
 
-            $cacheConfig    = new \Doctrine\ORM\Cache\CacheConfig();
+            $cacheConfig    = new \Doctrine\ORM\Cache\CacheConfiguration();
             $cache          = $this->getSharedSecondLevelCacheDriverImpl();
-            $factory        = new DefaultCacheFactory($cacheConfig->getRegionsConfig(), $cache);
+            $factory        = new DefaultCacheFactory($cacheConfig->getRegionsConfiguration(), $cache);
 
             $this->secondLevelCacheFactory = $factory;
 
             $cacheConfig->setCacheFactory($factory);
             $config->setSecondLevelCacheEnabled(true);
-            $config->setSecondLevelCacheConfig($cacheConfig);
+            $config->setSecondLevelCacheConfiguration($cacheConfig);
         }
 
         if ($conn === null) {

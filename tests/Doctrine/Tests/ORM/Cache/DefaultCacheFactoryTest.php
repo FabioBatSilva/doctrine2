@@ -9,7 +9,7 @@ use Doctrine\ORM\Cache\Region\DefaultRegion;
 use Doctrine\Tests\Mocks\ConcurrentRegionMock;
 use Doctrine\ORM\Persisters\BasicEntityPersister;
 use Doctrine\ORM\Persisters\OneToManyPersister;
-use Doctrine\ORM\Cache\RegionsConfig;
+use Doctrine\ORM\Cache\RegionsConfiguration;
 
 /**
  * @group DDC-2183
@@ -27,7 +27,7 @@ class DefaultCacheFactoryTest extends OrmTestCase
     private $em;
 
     /**
-     * @var \Doctrine\ORM\Cache\RegionsConfig
+     * @var \Doctrine\ORM\Cache\RegionsConfiguration
      */
     private $regionsConfig;
 
@@ -37,7 +37,7 @@ class DefaultCacheFactoryTest extends OrmTestCase
         parent::setUp();
 
         $this->em               = $this->_getTestEntityManager();
-        $this->regionsConfig    = new RegionsConfig;
+        $this->regionsConfig    = new RegionsConfiguration;
         $arguments              = array($this->regionsConfig, $this->getSharedSecondLevelCacheDriverImpl());
         $this->factory          = $this->getMock('\Doctrine\ORM\Cache\DefaultCacheFactory', array(
             'getRegion'

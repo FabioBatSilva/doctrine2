@@ -98,7 +98,7 @@ abstract class AbstractCollectionPersister implements CachedCollectionPersister
     public function __construct(CollectionPersister $persister, Region $region, EntityManagerInterface $em, array $association)
     {
         $configuration  = $em->getConfiguration();
-        $cacheConfig    = $configuration->getSecondLevelCacheConfig();
+        $cacheConfig    = $configuration->getSecondLevelCacheConfiguration();
         $cacheFactory   = $cacheConfig->getCacheFactory();
 
         $this->region           = $region;

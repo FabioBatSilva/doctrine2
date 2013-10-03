@@ -32,7 +32,7 @@ use Doctrine\ORM\Cache\TimestampQueryCacheValidator;
  * @since   2.5
  * @author  Fabio B. Silva <fabio.bat.silva@gmail.com>
  */
-class CacheConfig
+class CacheConfiguration
 {
     /**
      * @var \Doctrine\ORM\Cache\CacheFactory
@@ -40,7 +40,7 @@ class CacheConfig
     private $cacheFactory;
 
     /**
-     * @var \Doctrine\ORM\Cache\RegionsConfig
+     * @var \Doctrine\ORM\Cache\RegionsConfiguration
      */
     private $regionsConfig;
 
@@ -96,19 +96,19 @@ class CacheConfig
     /**
      * @return \Doctrine\ORM\Cache\QueryCacheValidator
      */
-    public function getRegionsConfig()
+    public function getRegionsConfiguration()
     {
         if ($this->regionsConfig == null) {
-            $this->regionsConfig = new RegionsConfig();
+            $this->regionsConfig = new RegionsConfiguration();
         }
 
         return $this->regionsConfig;
     }
 
     /**
-     * @param \Doctrine\ORM\Cache\RegionsConfig $regionsConfig
+     * @param \Doctrine\ORM\Cache\RegionsConfiguration $regionsConfig
      */
-    public function setRegionsConfig(RegionsConfig $regionsConfig)
+    public function setRegionsConfiguration(RegionsConfiguration $regionsConfig)
     {
         $this->regionsConfig = $regionsConfig;
     }
