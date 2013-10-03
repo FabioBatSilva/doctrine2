@@ -1,10 +1,10 @@
 The Second Level Cache
 ======================
 
-The Second Level Cache is designed to reduces the amount of necessary database access.
+The Second Level Cache is designed to reduce the amount of necessary database access.
 It sits between your application and the database to avoid the number of database hits as many as possible.
 
-When this is turned on, entities will be first searched in cache and if they are not found, 
+When turned on, entities will be first searched in cache and if they are not found,
 a database query will be fired an then the entity result will be stored in a cache provider.
 
 There are some flavors of caching available, but is better to cache read-only data.
@@ -213,13 +213,13 @@ Cached persisters are responsible to access cache regions.
 
 Configuration
 -------------
-Doctrine allow you to specify configurations and some points of extension for the second-level-cache
+Doctrine allows you to specify configurations and some points of extension for the second-level-cache
 
 
 Enable Second Level Cache Enabled
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-To Enable the cache second-level-cache you should provide a cache factory
+To enable the second-level-cache, you should provide a cache factory
 ``\Doctrine\ORM\Cache\DefaultCacheFactory`` is the default implementation.
 
 .. code-block:: php
@@ -337,7 +337,7 @@ To specify a default lifetime for all regions or specify a different lifetime fo
 
 Cache Log
 ~~~~~~~~~
-By providing a cache logger you should be able to get information about all cache operations such as hits, miss put.
+By providing a cache logger you should be able to get information about all cache operations such as hits, misses and puts.
 
 ``\Doctrine\ORM\Cache\Logging\StatisticsCacheLogger`` is a built-in implementation that provides basic statistics.
 
@@ -707,9 +707,11 @@ Using the query cache
 ---------------------
 
 The second level cache stores the entities, associations and collections.
-The query cache stores the results of the query but as identifiers,
-The entity values are actually stored in the 2nd level cache.
-So, query cache is useless without a 2nd level cache.
+The query cache stores the results of the query but as identifiers, entity values are actually stored in the 2nd level cache.
+
+.. note::
+
+    Query cache should always be used in conjunction with the second-level-cache for those entities which should be cached.
 
 .. code-block:: php
 
@@ -732,7 +734,7 @@ Cache API
 ---------
 
 Caches are not aware of changes made by another application.
-however, you can use the cache API to check / invalidate cache entries.
+However, you can use the cache API to check / invalidate cache entries.
 
 .. code-block:: php
 
@@ -742,7 +744,7 @@ however, you can use the cache API to check / invalidate cache entries.
     $cache = $em->getCache();
 
     $cache->containsEntity('State', 1)      // Check if the cache exists
-    $cache)->evictEntity('State', 1);       // Remove an entity from cache
+    $cache->evictEntity('State', 1);       // Remove an entity from cache
     $cache->evictEntityRegion('State');     // Remove all entities from cache
 
     $cache->containsCollection('State', 'cities', 1);   // Check if the cache exists
@@ -756,8 +758,8 @@ Composite primary key
 ~~~~~~~~~~~~~~~~~~~~~
 
 .. note::
-    Composite primary key are supported by second level cache,
-    However when one of the keys is an association
+
+    Composite primary key are supported by second level cache, however when one of the keys is an association
     the cached entity should always be retrieved using the association identifier.
 
 .. code-block:: php
@@ -796,7 +798,7 @@ Concurrent cache region
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 A ``Doctrine\\ORM\\Cache\\ConcurrentRegion`` is designed to store concurrently managed data region.
-However doctrine provide an very simple implementation based on file locks ``Doctrine\\ORM\\Cache\\Region\\FileLockRegion``.
+By default, Doctrine provides a very simple implementation based on file locks ``Doctrine\\ORM\\Cache\\Region\\FileLockRegion``.
 
 If you want to use an ``READ_WRITE`` cache, you should consider providing your own cache region.
 for more details about how to implement a cache region please see :ref:`reference-second-level-cache-regions`
