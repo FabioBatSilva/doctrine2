@@ -72,7 +72,7 @@ abstract class AbstractEntityPersister implements CachedEntityPersister
     /**
      * @var \Doctrine\ORM\Cache\EntityHydrator
      */
-    protected $hidrator;
+    protected $hydrator;
 
     /**
      * @var \Doctrine\ORM\Cache
@@ -109,7 +109,7 @@ abstract class AbstractEntityPersister implements CachedEntityPersister
         $this->uow              = $em->getUnitOfWork();
         $this->metadataFactory  = $em->getMetadataFactory();
         $this->cacheLogger      = $cacheConfig->getCacheLogger();
-        $this->hidrator         = $cacheFactory->buildEntityHydrator($em, $class);
+        $this->hydrator         = $cacheFactory->buildEntityHydrator($em, $class);
     }
 
     /**
@@ -190,7 +190,7 @@ abstract class AbstractEntityPersister implements CachedEntityPersister
      */
     public function getEntityHydrator()
     {
-        return $this->hidrator;
+        return $this->hydrator;
     }
 
     /**
@@ -205,7 +205,7 @@ abstract class AbstractEntityPersister implements CachedEntityPersister
             $class = $this->metadataFactory->getMetadataFor($className);
         }
 
-        $entry  = $this->hidrator->buildCacheEntry($class, $key, $entity);
+        $entry  = $this->hydrator->buildCacheEntry($class, $key, $entity);
         $cached = $this->region->put($key, $entry);
 
         if ($this->cacheLogger && $cached) {
@@ -371,7 +371,7 @@ abstract class AbstractEntityPersister implements CachedEntityPersister
                 $class = $this->metadataFactory->getMetadataFor($cacheEntry->class);
             }
 
-            if (($entity = $this->hidrator->loadCacheEntry($class, $cacheKey, $cacheEntry, $entity)) !== null) {
+            if (($entity = $this->hydrator->loadCacheEntry($class, $cacheKey, $cacheEntry, $entity)) !== null) {
 
                 if ($this->cacheLogger) {
                     $this->cacheLogger->entityCacheHit($this->regionName, $cacheKey);
@@ -394,7 +394,7 @@ abstract class AbstractEntityPersister implements CachedEntityPersister
             $class = $this->metadataFactory->getMetadataFor($className);
         }
 
-        $cacheEntry = $this->hidrator->buildCacheEntry($class, $cacheKey, $entity);
+        $cacheEntry = $this->hydrator->buildCacheEntry($class, $cacheKey, $entity);
         $cached     = $this->region->put($cacheKey, $cacheEntry);
 
         if ($this->cacheLogger && $cached) {
