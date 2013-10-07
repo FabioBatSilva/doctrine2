@@ -9,6 +9,7 @@ use Doctrine\Tests\Models\Cache\City;
 use Doctrine\ORM\Cache\QueryCacheKey;
 use Doctrine\ORM\Cache\EntityCacheKey;
 use Doctrine\ORM\Cache\EntityCacheEntry;
+use Doctrine\ORM\Query;
 use Doctrine\ORM\Cache;
 
 /**
@@ -824,5 +825,27 @@ class SecondLevelCacheQueryCacheTest extends SecondLevelCacheAbstractTest
         $this->assertEquals(1, $this->secondLevelCacheLogger->getRegionHitCount('bar_region'));
         $this->assertEquals(1, $this->secondLevelCacheLogger->getRegionPutCount('bar_region'));
         $this->assertEquals(1, $this->secondLevelCacheLogger->getRegionMissCount('bar_region'));
+    }
+
+    /**
+     * @expectedException \Doctrine\ORM\Cache\CacheException
+     * @expectedExceptionMessage Second-level cache query suports only select statements.
+     */
+    public function testNonCacheableQueryDeleteStatementException()
+    {
+        $this->_em->createQuery('DELETE Doctrine\Tests\Models\Cache\Country u WHERE u.id = 4')
+            ->setCacheable(true)
+            ->getResult();
+    }
+
+    /**
+     * @expectedException \Doctrine\ORM\Cache\CacheException
+     * @expectedExceptionMessage Second-level cache query suports only select statements.
+     */
+    public function testNonCacheableQueryUpdateStatementException()
+    {
+        $this->_em->createQuery('UPDATE Doctrine\Tests\Models\Cache\Country u SET u.name = NULL WHERE u.id = 4')
+            ->setCacheable(true)
+            ->getResult();
     }
 }
