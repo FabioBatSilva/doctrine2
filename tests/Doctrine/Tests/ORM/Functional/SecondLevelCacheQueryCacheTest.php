@@ -827,13 +827,45 @@ class SecondLevelCacheQueryCacheTest extends SecondLevelCacheAbstractTest
         $this->assertEquals(1, $this->secondLevelCacheLogger->getRegionMissCount('bar_region'));
     }
 
+    public function testHintClearEntityRegionUpdateStatement()
+    {
+        $this->evictRegions();
+        $this->loadFixturesCountries();
+
+        $this->assertTrue($this->cache->containsEntity('Doctrine\Tests\Models\Cache\Country', $this->countries[0]->getId()));
+        $this->assertTrue($this->cache->containsEntity('Doctrine\Tests\Models\Cache\Country', $this->countries[1]->getId()));
+
+        $this->_em->createQuery('DELETE Doctrine\Tests\Models\Cache\Country u WHERE u.id = 4')
+            ->setHint(Query::HINT_CACHE_EVICT, true)
+            ->execute();
+
+        $this->assertFalse($this->cache->containsEntity('Doctrine\Tests\Models\Cache\Country', $this->countries[0]->getId()));
+        $this->assertFalse($this->cache->containsEntity('Doctrine\Tests\Models\Cache\Country', $this->countries[1]->getId()));
+    }
+
+    public function testHintClearEntityRegionDeleteStatement()
+    {
+        $this->evictRegions();
+        $this->loadFixturesCountries();
+
+        $this->assertTrue($this->cache->containsEntity('Doctrine\Tests\Models\Cache\Country', $this->countries[0]->getId()));
+        $this->assertTrue($this->cache->containsEntity('Doctrine\Tests\Models\Cache\Country', $this->countries[1]->getId()));
+
+        $this->_em->createQuery("UPDATE Doctrine\Tests\Models\Cache\Country u SET u.name = 'foo' WHERE u.id = 1")
+            ->setHint(Query::HINT_CACHE_EVICT, true)
+            ->execute();
+
+        $this->assertFalse($this->cache->containsEntity('Doctrine\Tests\Models\Cache\Country', $this->countries[0]->getId()));
+        $this->assertFalse($this->cache->containsEntity('Doctrine\Tests\Models\Cache\Country', $this->countries[1]->getId()));
+    }
+
     /**
      * @expectedException \Doctrine\ORM\Cache\CacheException
      * @expectedExceptionMessage Second-level cache query suports only select statements.
      */
     public function testNonCacheableQueryDeleteStatementException()
     {
-        $this->_em->createQuery('DELETE Doctrine\Tests\Models\Cache\Country u WHERE u.id = 4')
+        $this->_em->createQuery("DELETE Doctrine\Tests\Models\Cache\Country u WHERE u.id = 4")
             ->setCacheable(true)
             ->getResult();
     }
@@ -844,7 +876,7 @@ class SecondLevelCacheQueryCacheTest extends SecondLevelCacheAbstractTest
      */
     public function testNonCacheableQueryUpdateStatementException()
     {
-        $this->_em->createQuery('UPDATE Doctrine\Tests\Models\Cache\Country u SET u.name = NULL WHERE u.id = 4')
+        $this->_em->createQuery("UPDATE Doctrine\Tests\Models\Cache\Country u SET u.name = 'foo' WHERE u.id = 4")
             ->setCacheable(true)
             ->getResult();
     }
