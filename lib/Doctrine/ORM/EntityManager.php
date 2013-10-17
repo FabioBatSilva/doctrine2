@@ -225,7 +225,9 @@ use Doctrine\Common\Util\ClassUtils;
     }
 
     /**
-     * @return \Doctrine\ORM\Cache
+     * Returns the cache API for managing the second level cache regions or NULL if the cache is not anabled.
+     *
+     * @return \Doctrine\ORM\Cache|null
      */
     public function getCache()
     {
