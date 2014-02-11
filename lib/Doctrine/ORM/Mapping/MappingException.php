@@ -789,4 +789,16 @@ class MappingException extends \Doctrine\ORM\ORMException
             $className
         ));
     }
+
+    /**
+     * @param string $sourceEntity
+     * @param string $field
+     * @param string $targetEntity
+     *
+     * @return \Doctrine\ORM\Mapping\MappingException
+     */
+    public static function nonCacheableTargetAssociation($sourceEntity, $field, $targetEntity)
+    {
+        return new self(sprintf('Association field "%s#%s" is configured as part of the second-level cache, but the entity "%s" is not.', $sourceEntity, $field, $targetEntity));
+    }
 }

@@ -230,6 +230,16 @@ class ClassMetadataFactory extends AbstractClassMetadataFactory
             // second condition is necessary for mapped superclasses in the middle of an inheritance hierarchy
             throw MappingException::noInheritanceOnMappedSuperClass($class->name);
         }
+
+        foreach ($class->associationMappings as $value) {
+            if ( ! isset($value['cache'])) {
+                continue;
+            }
+
+            if ($this->getMetadataFor($value['targetEntity'])->cache == null) {
+                throw MappingException::nonCacheableTargetAssociation($value['sourceEntity'], $value['fieldName'], $value['targetEntity']);
+            }
+        }
     }
 
     /**
